@@ -27,6 +27,7 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
+
     return pd.merge(regions, departments, left_on='code', right_on='region_code', how='left'
                     ).drop(
         ['code_x', 'id_x', 'slug_x', 'slug_y', 'id_y'], axis=1
@@ -56,6 +57,7 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     The return DataFrame should be indexed by `code_reg` and have columns:
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
+
     referendum_and_areas = referendum_and_areas.groupby(['code_reg', 'name_reg'], as_index=False)[
         ['Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
         ].sum()
