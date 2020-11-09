@@ -45,7 +45,9 @@ def merge_referendum_and_areas(ref, reg_and_dep):
     You can drop the lines relative to DOM-TOM-COM departments, and the
     french living abroad.
     """
-    return ref.merge(reg_and_dep, left_on='Department code', right_on='code_dep')
+    reg_and_dep["code_dep"] = reg_and_dep["code_dep"].apply(lambda x : x.lstrip('0'))
+    m = ref.merge(reg_and_dep, how="outer", left_on='Department code', right_on='code_dep')
+    return m.dropna()
 
 
 def compute_referendum_result_by_regions(reg_and_area):
