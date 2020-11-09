@@ -17,11 +17,11 @@ import os
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
     dirname = os.path.dirname(__file__)
-   
-    referendum = pd.read_csv(os.path.join(dirname, "data", "referendum.csv"))
-    regions =  pd.read_csv(os.path.join(dirname, "data", "regions.csv"))
-    departments = pd.read_csv(os.path.join(dirname, "data", "departments.csv"))
 
+    referendum = pd.read_csv(os.path.join(
+        dirname, "data", "referendum.csv"), sep=";")
+    regions = pd.read_csv(os.path.join(dirname, "data", "regions.csv"))
+    departments = pd.read_csv(os.path.join(dirname, "data", "departments.csv"))
     return referendum, regions, departments
 
 
@@ -31,7 +31,7 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
-    
+    # print(pd.merge(regions, departments, on="id"))
     return pd.DataFrame({})
 
 
