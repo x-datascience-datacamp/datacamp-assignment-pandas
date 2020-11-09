@@ -32,8 +32,21 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
-    # print(pd.merge(regions, departments, on="id"))
-    return pd.DataFrame({})
+    # dropping unecessary columns and renaming for each dataframe
+    modified_regions = regions.drop(['id', 'slug'], axis=1).rename(
+        columns={'code': 'code_reg', 'name': 'name_reg'}
+    )
+    modified_departments = departments.drop(['id', 'slug'], axis=1).rename(
+        columns={'code': 'code_dep', 'name': 'name_dep'}
+    )
+    # merge on region code
+    merged_df = pd.merge(
+        modified_regions,
+        modified_departments,
+        left_on="code_reg",
+        right_on="region_code"
+    )
+    return merged_df.drop(['region_code'], axis=1)
 
 
 def merge_referendum_and_areas(referendum, regions_and_departments):
@@ -75,6 +88,7 @@ if __name__ == "__main__":
     regions_and_departments = merge_regions_and_departments(
         df_reg, df_dep
     )
+    print(regions_and_departments)
     referendum_and_areas = merge_referendum_and_areas(
         referendum, regions_and_departments
     )
