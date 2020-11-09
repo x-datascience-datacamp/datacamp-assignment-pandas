@@ -38,11 +38,9 @@ def merge_regions_and_departments(regions, departments):
 
 def merge_referendum_and_areas(referendum, regions_and_departments):
     """Merge referendum and regions_and_departments in one DataFrame.
-
     You can drop the lines relative to DOM-TOM-COM departments, and the
     french living abroad.
     """
-    # not ended. Need to drop
     referendum['Department code'] = referendum['Department code'].apply(lambda x: x.zfill(2))
 
     return pd.merge(
@@ -57,7 +55,6 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     The return DataFrame should be indexed by `code_reg` and have columns:
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
-
     referendum_and_areas = referendum_and_areas.groupby(['code_reg', 'name_reg'], as_index=False)[
         ['Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
         ].sum()
