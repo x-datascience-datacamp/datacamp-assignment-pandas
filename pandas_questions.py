@@ -11,13 +11,16 @@ aggregate them by regions and finally plot them on a map using `geopandas`.
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import os
 
 
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
-    referendum = pd.DataFrame({})
-    regions = pd.DataFrame({})
-    departments = pd.DataFrame({})
+    dirname = os.path.dirname(__file__)
+   
+    referendum = pd.read_csv(os.path.join(dirname, "data", "referendum.csv"))
+    regions =  pd.read_csv(os.path.join(dirname, "data", "regions.csv"))
+    departments = pd.read_csv(os.path.join(dirname, "data", "departments.csv"))
 
     return referendum, regions, departments
 
@@ -28,7 +31,7 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
-
+    
     return pd.DataFrame({})
 
 
