@@ -13,6 +13,8 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import os
 
+ABROAD_REGION_CODES = ['01', '02', '03', '04', '06', 'COM']
+
 
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
@@ -55,8 +57,19 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     You can drop the lines relative to DOM-TOM-COM departments, and the
     french living abroad.
     """
-
-    return pd.DataFrame({})
+    # pad the code departments 1 -> 01
+    referendum['Department code'] = referendum['Department code'].apply(
+        lambda x: x.zfill(2)
+    )
+    # merge on code department and drop join column, DOM/abroad departments will
+    # be automatically dropped since they are not present in
+    # regions_and_departments dataframe
+    return pd.merge(
+        referendum,
+        regions_and_departments,
+        left_on="Department code",
+        right_on="code_dep"
+    )
 
 
 def compute_referendum_result_by_regions(referendum_and_areas):
@@ -88,10 +101,10 @@ if __name__ == "__main__":
     regions_and_departments = merge_regions_and_departments(
         df_reg, df_dep
     )
-    print(regions_and_departments)
     referendum_and_areas = merge_referendum_and_areas(
         referendum, regions_and_departments
     )
+    print(referendum_and_areas)
     referendum_results = compute_referendum_result_by_regions(
         referendum_and_areas
     )
