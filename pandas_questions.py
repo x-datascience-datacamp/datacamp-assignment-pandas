@@ -46,8 +46,7 @@ def merge_referendum_and_areas(ref, reg_and_dep):
     french living abroad.
     """
     reg_and_dep["code_dep"] = reg_and_dep["code_dep"].apply(lambda x : x.lstrip('0'))
-    m = ref.merge(reg_and_dep, how="outer", left_on='Department code', right_on='code_dep')
-    return m.dropna()
+    return ref.merge(reg_and_dep,left_on='Department code', right_on='code_dep')
 
 
 def compute_referendum_result_by_regions(reg_and_area):
@@ -56,7 +55,8 @@ def compute_referendum_result_by_regions(reg_and_area):
     The return DataFrame should be indexed by `code_reg` and have columns:
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
-    return reg_and_area.groupby('name_reg').sum()
+    reg_and_area = reg_and_area.drop(columns='Town code')
+    return reg_and_area.groupby('name_reg', as_index=False).sum()
 
 
 def plot_referendum_map(referendum_result_by_regions):
@@ -69,7 +69,6 @@ def plot_referendum_map(referendum_result_by_regions):
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
     reg_map = gpd.read_file('data/regions.geojson')
-    reg_map['name_reg'] = reg_map['nom']
     merged = gpd.GeoDataFrame(referendum_result_by_regions.merge(reg_map, right_on='nom', left_on='name_reg'))
     merged['ratio'] = merged['Choice A'] / (merged['Choice A'] + merged['Choice B'])
     merged.plot(column='ratio', legend=True)
