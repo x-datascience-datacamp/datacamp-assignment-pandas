@@ -47,16 +47,15 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     You can drop the lines relative to DOM-TOM-COM departments, and the
     french living abroad.
     """
-
     _, regions, departments = load_data()
     referendum = referendum.drop(columns=['Department name'])
     referendum = referendum.rename(columns={'Department code': 'code_dep'})
     OUT = ['ZA', 'ZB', 'ZC', 'ZD', 'ZM', 'ZN', 'ZP', 'ZS', 'ZW', 'ZX', 'ZZ']
     referendum = referendum[-referendum['code_dep'].isin(OUT)]
-
-    return pd.merge(referendum, merge_regions_and_departments(regions,
-                                                              departments), 
-                                                              on='code_dep')
+    
+    df = merge_regions_and_departments(regions, departments)
+    df["code_dep"] = df["code_dep"].apply(lambda x : x.lstrip('0'))
+    return pd.merge(referendum, df, on='code_dep')
 
 
 def compute_referendum_result_by_regions(referendum_and_areas):
@@ -65,10 +64,8 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     The return DataFrame should be indexed by `code_reg` and have columns:
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
-    data = referendum_and_areas
-    data = data.drop(columns=['Town code'])
-
-    return data.groupby('name_reg').sum()
+    referendum_and_areas = referendum_and_areas.drop(columns=['Town code'])
+    return referendum_and_areas.groupby('name_reg', as_index=False).sum()
 
 
 def plot_referendum_map(referendum_result_by_regions):
