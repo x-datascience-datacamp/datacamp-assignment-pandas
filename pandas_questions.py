@@ -18,7 +18,6 @@ def load_data():
     referendum = pd.read_csv('./data/referendum.csv', ';')
     regions = pd.read_csv('./data/regions.csv', ',')
     departments = pd.read_csv('./data/departments.csv', ',')
-
     return referendum, regions, departments
 
 
@@ -42,10 +41,8 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     """
     regions_and_departments = regions_and_departments[0:96]
     referendum['Department code'] = referendum['Department code'].apply(lambda x: x.zfill(2))
-    
     df = pd.merge(regions_and_departments, referendum, 
                 left_on='code_dep', right_on='Department code', indicator=False)
-    #df = df.drop(['Department code','Department name'], axis=1)
     return df
 
 
@@ -77,14 +74,11 @@ def plot_referendum_map(referendum_result_by_regions):
     reg.set_index('code', inplace=True)
     df = pd.merge(referendum_result_by_regions, reg, how='left', 
                   left_index=True, right_index=True)
-    #df.drop(['nom'], axis=1, inplace=True)
-    total = df.Null + df['Choice A'] + df['Choice B']
+    total = df['Choice A'] + df['Choice B']
     df['ratio'] = df['Choice A'] / total
     gf = gpd.GeoDataFrame(df, geometry=df.geometry)
     gf.plot(column='ratio', legend=True, 
-           legend_kwds={'label': "Ratio of choice A over expressed ballots",
-                        'orientation': "horizontal"})
-    
+           legend_kwds={'label': "Ratio of choice A over expressed ballots"})
     return gf
 
 
