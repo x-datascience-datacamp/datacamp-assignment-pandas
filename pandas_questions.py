@@ -59,7 +59,8 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
                              left_on="Department code", right_on="code_dep")
     merge = merge.drop(merge[merge[
         "name_reg"].isin(["Collectivités d'Outre-Mer", "Guadeloupe",
-                          "Mayotte", "Guyane", "La Réunion", "Martinique"])].index)
+                          "Mayotte", "Guyane",
+                          "La Réunion", "Martinique"])].index)
     return merge
 
 
