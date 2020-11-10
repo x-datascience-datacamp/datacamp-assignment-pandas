@@ -28,11 +28,11 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
-    areas = pd.merge(regions[['code', 'name']], departments[['region_code', 'code', 'name']],
+    merged = pd.merge(regions[['code', 'name']], departments[['region_code', 'code', 'name']],
                      left_on='code', right_on='region_code', suffixes=('_reg', '_dep'),
                      sort=True)
-    areas = areas.drop(['region_code'], axis=1)
-    return areas
+    merged = merged.drop(['region_code'], axis=1)
+    return merged
 
 
 def merge_referendum_and_areas(referendum, regions_and_departments):
@@ -42,8 +42,8 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     french living abroad.
     """
     referendum['Department code'] = referendum['Department code'].apply(lambda x: x.zfill(2))
-    merge = pd.merge(regions_and_departments, referendum, left_on='code_dep', right_on='Department code')
-    return merge
+    merged = pd.merge(regions_and_departments, referendum, left_on='code_dep', right_on='Department code')
+    return merged
 
 
 def compute_referendum_result_by_regions(referendum_and_areas):
@@ -54,7 +54,7 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     """
     computed = referendum_and_areas[['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']]\
         .groupby('name_reg').sum()
-    computed["name_reg"] = list(computed.index)
+    computed = computed.reset_index()
     return computed
 
 
@@ -67,8 +67,11 @@ def plot_referendum_map(referendum_result_by_regions):
       should display the rate of 'Choice A' over all expressed ballots.
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
-
-    return gpd.GeoDataFrame({})
+    regions = gpd.read_file('./data/regions.geojson')
+    merged = pd.merge(referendum_result_by_regions, regions, left_on='name_reg', right_on='nom')
+    merged['ratio'] = merged['Choice A'] / (merged['Choice A'] + merged['Choice B'])
+    geo = gpd.GeoDataFrame(merged)
+    return geo
 
 
 if __name__ == "__main__":
