@@ -11,8 +11,6 @@ aggregate them by regions and finally plot them on a map using `geopandas`.
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
-import geodaisy.converters as convert
-import shapely.wkt
 
 
 def load_data():
@@ -49,7 +47,8 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     You can drop the lines relative to DOM-TOM-COM departments, and the
     french living abroad.
     """
-    referendum['Department code'] = referendum['Department code'].apply(lambda x: x.zfill(2))
+    referendum['Department code'] = referendum['Department code'] \
+        .apply(lambda x: x.zfill(2))
     df = pd.merge(regions_and_departments,
                   referendum,
                   left_on='code_dep',
@@ -95,7 +94,8 @@ def plot_referendum_map(referendum_result_by_regions):
                   right_on='code',
                   how='left')
     gpd_df = gpd.GeoDataFrame(df, geometry=df['geometry'])
-    gpd_df['ratio'] = gpd_df['Choice A'] / (gpd_df['Choice A'] + gpd_df['Choice B'])
+    gpd_df['ratio'] = gpd_df['Choice A'] / \
+        (gpd_df['Choice A'] + gpd_df['Choice B'])
     gpd_df.plot(column='ratio')
     return gpd_df
 
