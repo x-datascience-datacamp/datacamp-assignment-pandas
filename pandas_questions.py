@@ -38,7 +38,7 @@ def merge_regions_and_departments(regions, departments):
 
     return regions_departments
 
-    
+
 def merge_referendum_and_areas(referendum, regions_and_departments):
     """Merge referendum and regions_and_departments in one DataFrame.You can dr.  
     op the lines relative to DOM-TOM-COM departments, and the
@@ -47,7 +47,7 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     referendum['Department code'] = referendum['Department code'].apply(
                                     lambda x: x.zfill(2))
     ref_area_NAN = pd.merge(referendum, regions_and_departments, how='left',
-                            left_on='Department_code', right_on='code_dep')
+                            left_on='Department code', right_on='code_dep')
     referendum_areas = ref_area_NAN.dropna()
     return referendum_areas
 
