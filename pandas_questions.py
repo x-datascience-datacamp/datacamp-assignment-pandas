@@ -27,11 +27,18 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
-    merged = pd.merge(regions, departments, left_on="code",
-                      right_on="region_code", suffixes=("_reg", "_dep"))
-    return merged[['code_reg', 'name_reg', 'code_dep', 'name_dep']]
+    departments['code_dep'] = departments['code']
+    departments['name_dep'] = departments['name']
+    regions['code_reg'] = regions['code']
+    regions['name_reg'] = regions['name']
+    merged = pd.merge(regions, departments,
+                         left_on="code", right_on="region_code")
+    regions_departments = merged[['code_dep', 'code_reg',
+                                  'name_dep', 'name_reg']]
 
+    return regions_departments
 
+    
 def merge_referendum_and_areas(referendum, regions_and_departments):
     """Merge referendum and regions_and_departments in one DataFrame.You can dr.  
     op the lines relative to DOM-TOM-COM departments, and the
@@ -50,8 +57,15 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     The return DataFrame should be indexed by `code_reg` and have columns:
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
+    drop_col = ['Town code', 'Department name', 'name_dep']
+    referendum_areas = referendum_and_areas.drop(columns=drop_col)
+    referendum_areas_grp = referendum_areas.groupby(
+                ['code_reg', 'name_reg']).sum().reset_index()
+    results = referendum_areas_grp.set_index('code_reg')
 
-    return pd.DataFrame({})
+    return results
+
+
 
 
 def plot_referendum_map(referendum_result_by_regions):
