@@ -51,14 +51,7 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     french living abroad.
     """
     # Pad Department code from 1 to 01
-    referendum['Department code'] = referendum['Department code'].apply(
-        lambda x: x.zfill(2)
-    )
-
-    # lst = ['01', '02', '03', '04', '06', 'COM']
-    # ref2=referendum.copy()
-    # indexes = ref2[ref2['Department code'].isin(lst)].index
-    # ref2.drop(indexes, inplace=True)
+    referendum["Department code"]=referendum["Department code"].str.zfill(2)
 
     return pd.merge(
         referendum,
@@ -120,7 +113,6 @@ if __name__ == "__main__":
     regions_and_departments = merge_regions_and_departments(
         df_reg, df_dep
     )
-
     referendum_and_areas = merge_referendum_and_areas(
         referendum, regions_and_departments
     )
