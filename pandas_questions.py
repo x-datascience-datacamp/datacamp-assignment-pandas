@@ -74,7 +74,7 @@ def plot_referendum_map(referendum_result_by_regions):
       should display the rate of 'Choice A' over all expressed ballots.
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
-    reg_map = gpd.read_file(path+'data/regions.geojson')
+    reg_map = gpd.read_file('data/regions.geojson')
     df = referendum_result_by_regions
     map_ref = gpd.GeoDataFrame(df.merge(reg_map, right_on='nom', left_on='name_reg'))
     s = map_ref['Choice A'] + map_ref['Choice B']
