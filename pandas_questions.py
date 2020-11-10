@@ -29,10 +29,10 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
-    columns =  ['code_reg', 'name_reg', 'code_dep', 'name_dep']
+
     regions_and_departments = pd.merge(regions[['code', 'name']], departments[['region_code', 'code', 'name']],
                           left_on='code', right_on='region_code', suffixes=['_reg', '_dep'], how='left')
-    regions_and_departments = regions_and_departments[columns] 
+    regions_and_departments = regions_and_departments.drop("region_code", axis=1) 
     
     return regions_and_departments
 
@@ -62,7 +62,7 @@ def compute_referendum_result_by_regions(referendum_and_areas):
 
 
     columns = ['code_reg', 'name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
-    referendum_result_by_regions = referendum_and_areas[columns].groupby(by=["code_reg", "name_reg"]).sum().reset_index().set_index("code_reg")
+    referendum_result_by_regions = referendum_and_areas[columns].groupby(by=["code_reg", "name_reg"]).sum().set_index("code_reg")
     return referendum_result_by_regions
 
 def plot_referendum_map(referendum_result_by_regions):
@@ -77,7 +77,7 @@ def plot_referendum_map(referendum_result_by_regions):
     data = gpd.read_file("data/regions.geojson")
     data = data.merge(referendum_result_by_regions, left_on="code", right_on="code_reg")
     data["ratio"] = (data["Choice A"] / (data['Registered'] - data['Abstentions'] - data['Null']))
-    data.plot("ratio", legend=True)
+    data.plot(column="ratio")
     plt.show()
 
     return data
