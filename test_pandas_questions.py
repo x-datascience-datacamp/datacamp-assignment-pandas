@@ -13,6 +13,7 @@ def test_load_data():
     referendum, regions, departments = load_data()
 
     x=1
+    y=1
     df_ref = pd.read_csv('data/referendum.csv', sep=';')
     assert set(referendum.columns) == set(df_ref.columns)
 
