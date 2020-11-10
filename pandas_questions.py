@@ -15,11 +15,14 @@ import matplotlib.pyplot as plt
 
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
-    referendum = pd.DataFrame({})
-    regions = pd.DataFrame({})
-    departments = pd.DataFrame({})
+    # referendum = pd.DataFrame({})
+    # regions = pd.DataFrame({})
+    # departments = pd.DataFrame({})
+
+    departments = pd.read_csv("data\departments.csv")
 
     return referendum, regions, departments
+
 
 
 def merge_regions_and_departments(regions, departments):
