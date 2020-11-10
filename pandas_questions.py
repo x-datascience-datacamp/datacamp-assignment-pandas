@@ -1,3 +1,4 @@
+#%%
 """Plotting referendum results in pandas.
 
 In short, we want to make beautiful map to report results of a referendum. In
@@ -16,9 +17,9 @@ import matplotlib.pyplot as plt
 
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
-    referendum = pd.read_csv('referendum.csv', sep=';')
-    regions = pd.read_csv('regions.csv', sep=',')
-    departments = pd.read_csv('departments.csv', sep=',')
+    referendum = pd.read_csv('data/referendum.csv', sep=';')
+    regions = pd.read_csv('data/regions.csv', sep=',')
+    departments = pd.read_csv('data/departments.csv', sep=',')
     return referendum, regions, departments
 
 
@@ -131,3 +132,5 @@ if __name__ == "__main__":
 
     plot_referendum_map(referendum_results)
     plt.show()
+
+#%%
