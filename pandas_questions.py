@@ -28,6 +28,7 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
+    
     p=pd.merge(regions, departments,left_on=regions['code']
                ,right_on=departments['code'])
     p=p[['code_x', 'name_x','code_y','region_code']]
