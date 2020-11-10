@@ -29,6 +29,8 @@ def merge_regions_and_departments(regions, departments):
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
 
+    #TODO
+
     return pd.DataFrame({})
 
 
