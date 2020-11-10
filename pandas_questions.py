@@ -11,7 +11,6 @@ aggregate them by regions and finally plot them on a map using `geopandas`.
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
-import numpy as np
 
 
 def load_data():
@@ -42,7 +41,7 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     french living abroad.
     """
     referendum = referendum[referendum["Department name"] != 
-    "FRANCAIS DE L'ETRANGER"]
+                            "FRANCAIS DE L'ETRANGER"]
     referendum = referendum[~referendum['Department code'].str.startswith('Z')]
     regions_and_departments['code_dep'] = regions_and_departments[
         'code_dep'].apply(lambda x: x[1] if x[0] == '0' else x)
@@ -81,7 +80,8 @@ def plot_referendum_map(referendum_result_by_regions):
     mapreg = gpd.read_file('data/regions.geojson')
     referendum_result_by_regions = referendum_result_by_regions.join(
         mapreg.set_index('code'))
-    referendum_result_by_regions['ratio'] = referendum_result_by_regions['Choice A'] / (
+    referendum_result_by_regions['ratio'] = 
+    referendum_result_by_regions['Choice A'] / (
         referendum_result_by_regions['Choice A'] + 
         referendum_result_by_regions['Choice B'])
     gpd.GeoDataFrame(referendum_result_by_regions, 
