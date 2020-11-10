@@ -12,6 +12,7 @@ import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
 
+
 def load_data():
     """Load data from the CSV files referendum/regions/departments."""
     referendum = pd.read_csv("./data/referendum.csv", sep=';')
@@ -42,7 +43,7 @@ def merge_regions_and_departments(regions, departments):
 
 def merge_referendum_and_areas(referendum, regions_and_departments):
     """Merge referendum and regions_and_departments in one DataFrame.
-    
+
     You can drop the lines relative to DOM-TOM-COM departments, and the
     french living abroad.
     """
