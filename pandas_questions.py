@@ -90,8 +90,7 @@ def plot_referendum_map(referendum_result_by_regions):
         '/Users/emmasarfati/datacamp-assignment-pandas/data/regions.geojson')
     referendum_result_by_regions = referendum_result_by_regions.join(
         mapreg.set_index('code'))
-    referendum_result_by_regions['ratio'] = 
-    referendum_result_by_regions['Choice A'] / (
+    referendum_result_by_regions['ratio'] = referendum_result_by_regions['Choice A'] / (
         referendum_result_by_regions['Choice A'] + 
         referendum_result_by_regions['Choice B'])
     gpd.GeoDataFrame(referendum_result_by_regions, 
