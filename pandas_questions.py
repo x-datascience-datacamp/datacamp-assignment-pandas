@@ -55,9 +55,7 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     french living abroad.
     """
     # pad the code departments 1 -> 01
-    referendum['Department code'] = referendum['Department code'].apply(
-        lambda x: x.zfill(2)
-    )
+    referendum['Department code'] = referendum['Department code'].str.zfill(2)
     # merge on code department and drop join column, DOM/abroad departments will
     # be automatically dropped since they are not present in
     # regions_and_departments dataframe
