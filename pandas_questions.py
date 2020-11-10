@@ -28,15 +28,22 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
-    regions_departments = pd.merge(regions[["name", "code"]], departments[["code", "region_code", "name"]],
-                                   left_on='code', right_on='region_code').drop('code_x', axis=1)
+    regions_departments = pd.merge(regions[["name", "code"]],
+                                   departments[["code",
+                                                "region_code", "name"]],
+                                   left_on='code',
+                                   right_on='region_code').drop('code_x',
+                                                                axis=1)
 
-    regions_departments = regions_departments.rename(columns={'region_code': 'code_reg',
-                                                              'code_y': 'code_dep',
-                                                              'name_x': 'name_reg',
-                                                              'name_y': 'name_dep'})
+    regions_departments = regions_departments.rename(
+        columns={'region_code': 'code_reg',
+                 'code_y': 'code_dep',
+                 'name_x': 'name_reg',
+                 'name_y': 'name_dep'}
+    )
     # delete the '0' in '01'-like code_dep values
-    regions_departments["code_dep"] = regions_departments["code_dep"].apply(lambda x: x[1] if x[0] == '0' else x)
+    regions_departments["code_dep"] = regions_departments["code_dep"].apply(
+        lambda x: x[1] if x[0] == '0' else x)
 
     return regions_departments
 
@@ -51,11 +58,12 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
         regions_and_departments["code_dep"].str.len() < 3
         ]
 
-    referendum_areas = pd.merge(referendum[~referendum["Department code"].str.contains("Z")],
-                                metropolitan_regions_and_departments,
-                                left_on='Department code',
-                                right_on='code_dep',
-                                how='outer')
+    referendum_areas = pd.merge(
+        referendum[~referendum["Department code"].str.contains("Z")],
+        metropolitan_regions_and_departments,
+        left_on='Department code',
+        right_on='code_dep',
+        how='outer')
 
     return referendum_areas
 
@@ -100,7 +108,8 @@ def plot_referendum_map(referendum_result_by_regions):
                       left_on='code_reg',
                       right_on='code')
 
-    result["ratio"] = result["Choice A"] / (result["Choice A"] + result["Choice B"])
+    result["ratio"] = result["Choice A"] \
+                      / (result["Choice A"] + result["Choice B"])
     result.drop("Choice A", axis=1, inplace=True)
 
     geo_result = gpd.GeoDataFrame(result)
