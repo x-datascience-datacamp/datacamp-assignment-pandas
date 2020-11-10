@@ -51,7 +51,7 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     french living abroad.
     """
     # Pad Department code from 1 to 01
-    referendum["Department code"]=referendum["Department code"].str.zfill(2)
+    referendum["Department code"] = referendum["Department code"].str.zfill(2)
 
     return pd.merge(
         referendum,
