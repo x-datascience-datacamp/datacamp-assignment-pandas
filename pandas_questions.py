@@ -31,7 +31,9 @@ def merge_regions_and_departments(regions, departments):
     df1 = regions.iloc[:, 1:3]
     df1 = df1.rename(columns={'code': 'code_reg', 'name': 'name_reg'})
     df2 = departments.iloc[:, 1:4]
-    df2 = df2.rename(columns={'region_code': 'code_reg', 'name': 'name_dep', 'code': 'code_dep'})
+    df2 = df2.rename(columns={'region_code': 'code_reg', 
+    'name': 'name_dep', 
+    'code': 'code_dep'})
     df_join = df1.merge(df2,left_on='code_reg', right_on='code_reg')
     return df_join
 
@@ -42,9 +44,12 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     You can drop the lines relative to DOM-TOM-COM departments, and the
     french living abroad.
     """
-    regions_and_departments["code_dep"] = regions_and_departments["code_dep"].replace(['01', '02', '03', '04', '05', '06', '07', '08', '09'],
-    ['1', '2', '3', '4', '5', '6', '7', '8', '9'] )
-    df1 = referendum.merge(regions_and_departments, left_on='Department code', right_on='code_dep')
+    L1 = ['01', '02', '03', '04', '05', '06', '07', '08', '09']
+    L2 = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+    regions_and_departments["code_dep"] = regions_and_departments["code_dep"].replace(L1, L2)
+    df1 = referendum.merge(regions_and_departments, 
+    left_on='Department code', 
+    right_on='code_dep')
     df1 = df1[~df1['Department code'].str.startswith("Z")]
     return df1
 
@@ -55,7 +60,8 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     The return DataFrame should be indexed by `code_reg` and have columns:
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
-    df1 = referendum_and_areas.groupby(["code_reg", "name_reg"]).agg('sum').iloc[:, 1:].reset_index()
+    df1 = referendum_and_areas.groupby(["code_reg", "name_reg"]).agg('sum')
+    df1 = df1.iloc[:, 1:].reset_index()
     return df1.set_index('code_reg')
 
 
@@ -70,7 +76,8 @@ def plot_referendum_map(referendum_result_by_regions):
     """
     geo_region = gpd.read_file("data/regions.geojson")
     referendum_result_by_regions = referendum_result_by_regions.reset_index()
-    geo_merge = geo_region.merge(referendum_result_by_regions.rename(columns={"code_reg": "code" }), on="code")
+    geo_merge = geo_region.merge(referendum_result_by_regions.rename(columns={"code_reg": "code" }), 
+    on="code")
     ratio = geo_merge['Choice A'] / (geo_merge["Choice A"] + geo_merge["Choice B"])
     geo_merge['ratio'] = ratio
     geo_merge.plot(column ='ratio')
