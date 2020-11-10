@@ -30,10 +30,11 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
-    df = pd.merge(regions[['code','name']], 
-                  departments[['region_code','code','name']],
-                  left_on='code', right_on='region_code', indicator=False,
-                  suffixes=('_reg','_dep')).drop(['region_code'],axis=1)
+    df = pd.merge(regions[['code', 'name']],
+                  departments[['region_code', 'code', 'name']],
+                  left_on='code', right_on='region_code',
+                  indicator=False,
+                  suffixes=('_reg', '_dep')).drop(['region_code'], axis=1)
     return df
 
 
@@ -50,9 +51,9 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     # then we can take the first 96 depts.
     # which corresponds to metropolitan France
     regions_and_departments = regions_and_departments[0:96]
-    df = pd.merge(regions_and_departments, referendum, 
-                  left_on='code_dep', right_on='Department code', 
-                  indicator=False)
+    df = pd.merge(regions_and_departments,
+                  referendum, left_on='code_dep',
+                  right_on='Department code', indicator=False)
     return df
 
 
@@ -62,9 +63,9 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     The return DataFrame should be indexed by `code_reg` and have columns:
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
-    df = referendum_and_areas.groupby(['code_reg','name_reg'], 
+    df = referendum_and_areas.groupby(['code_reg', 'name_reg'],
                                       as_index=False)[
-                                      ['Registered','Abstentions', 'Null', 
+                                      ['Registered', 'Abstentions', 'Null',
                                        'Choice A', 'Choice B']].sum()
     df.set_index('code_reg', inplace=True)
     return df
@@ -81,10 +82,10 @@ def plot_referendum_map(referendum_result_by_regions):
     """
     reg = gpd.read_file('./data/regions.geojson')
     reg.set_index('code', inplace=True)
-    df = pd.merge(referendum_result_by_regions, reg, how='left', 
-                  left_index=True, right_index=True)
-    total = df['Choice A'] + df['Choice B']
-    df['ratio'] = df['Choice A'] / total
+    df = pd.merge(referendum_result_by_regions, reg,
+                  how='left', left_index=True, right_index=True)
+    total_ballots = df['Choice A'] + df['Choice B']
+    df['ratio'] = df['Choice A'] / total_ballots
     # we recreate our GeoDataframe
     gf = gpd.GeoDataFrame(df, geometry=df.geometry)
     gf.plot(column='ratio', legend=True,
