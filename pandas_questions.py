@@ -19,12 +19,6 @@ def load_data():
     referendum = pd.DataFrame(pd.read_csv("./data/referendum.csv", sep=";"))
     regions = pd.DataFrame(pd.read_csv("./data/regions.csv"))
     departments = pd.DataFrame(pd.read_csv("./data/departments.csv"))
-    # Column names
-    # regions: id, code, name, slug
-    # departments: id, region_code, code, name, slug
-    # referendum: Department code, Department name, Town code,
-    #             Town name, Registered, Abstentions, Null,
-    #             Choice A, Choice B
 
     return referendum, regions, departments
 
@@ -148,7 +142,6 @@ def plot_referendum_map(referendum_result_by_regions):
 
     """
     region_map = gpd.read_file("./data/regions.geojson")
-    # Column names: code, nom, geometry
 
     df = {"geometry": list()}
     for col in referendum_result_by_regions.columns:
