@@ -44,6 +44,8 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     You can drop the lines relative to DOM-TOM-COM departments, and the
     french living abroad.
     """
+    referendum = referendum[referendum["Department name"] != 
+    "FRANCAIS DE L'ETRANGER"]
     referendum = referendum[referendum['Department code'].isin(
         referendum['Department code'].unique()[:-10])]
     col = []
