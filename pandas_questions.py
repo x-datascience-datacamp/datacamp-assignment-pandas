@@ -17,12 +17,9 @@ import shapely.wkt
 
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
-    path_dep = '''/Users/maximeberillon/Documents/Data Camp/
-                  datacamp-assignment-pandas/data/departments.csv'''
-    path_ref = '''/Users/maximeberillon/Documents/Data Camp/
-                  datacamp-assignment-pandas/data/referendum.csv'''
-    path_reg = '''/Users/maximeberillon/Documents/Data Camp/
-                  datacamp-assignment-pandas/data/regions.csv'''
+    path_dep = 'data/departments.csv'
+    path_ref = 'data/referendum.csv'
+    path_reg = 'data/regions.csv'
     referendum = pd.read_csv(path_ref, delimiter=';')
     regions = pd.read_csv(path_reg)
     departments = pd.read_csv(path_dep)
@@ -52,13 +49,14 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     You can drop the lines relative to DOM-TOM-COM departments, and the
     french living abroad.
     """
+    referendum['Department code'] = referendum['Department code'].apply(lambda x: x.zfill(2))
     df = pd.merge(regions_and_departments,
                   referendum,
                   left_on='code_dep',
                   right_on='Department code',
-                  how='left') \
-        .drop(columns=['Department code', 'Department name'])
-    result = df[~df['code_reg'].isin(['01', '02', '03', '04', '06', 'COM'])]
+                  how='left')
+    df2 = df[~df['code_reg'].isin(['01', '02', '03', '04', '06', 'COM'])]
+    result = df2.dropna()
     return result
 
 
@@ -90,17 +88,13 @@ def plot_referendum_map(referendum_result_by_regions):
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
     # Loading the geographic data
-    df = pd.read_json(
-        '/Users/maximeberillon/Documents/Data Camp/ \
-        datacamp-assignment-pandas/data/regions.geojson')
+    df = pd.read_json('data/regions.geojson')
     df2 = pd.concat([df.drop(['features'], axis=1),
                      df['features'].apply(pd.Series)], axis=1)
-    df3 = pd.concat([df2.drop(['geometry'], axis=1),
-                     df2['geometry'].apply(pd.Series)], axis=1)
-    df4 = pd.concat([df3.drop(['properties'], axis=1),
-                     df3['properties'].apply(pd.Series)], axis=1)
+    df3 = pd.concat([df2.drop(['properties'], axis=1),
+                     df2['properties'].apply(pd.Series)], axis=1)
     referendum_result_by_regions = pd.merge(referendum_result_by_regions,
-                                            df4,
+                                            df3,
                                             left_on='code_reg',
                                             right_on='code',
                                             how='left') \
@@ -115,8 +109,7 @@ def plot_referendum_map(referendum_result_by_regions):
     gpd_referendum_result_by_regions['ratio'] = \
         gpd_referendum_result_by_regions['Choice A'] / \
         (gpd_referendum_result_by_regions['Choice A'] +
-         gpd_referendum_result_by_regions['Choice B'] +
-         gpd_referendum_result_by_regions['Null'])
+         gpd_referendum_result_by_regions['Choice B'])
     gpd_referendum_result_by_regions.plot(column='ratio')
     return gpd_referendum_result_by_regions
 
