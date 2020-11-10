@@ -68,7 +68,7 @@ def plot_referendum_map(referendum_result_by_regions):
         referendum_result_by_regions,
         geographic_df,
         left_on="code_reg",
-        right_on="code"g).drop(['nom'], axis=1)
+        right_on="code").drop(['nom'], axis=1)
     regions_geometry['ratio'] = (
         regions_geometry['Choice A'] /
         (regions_geometry['Registered'] -
