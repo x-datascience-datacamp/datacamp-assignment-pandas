@@ -15,9 +15,9 @@ import matplotlib.pyplot as plt
 
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
-    referendum = pd.read_csv('./data/referendum.csv', split=';')
-    regions = pd.read_csv('./data/regions.csv', split=',')
-    departments = pd.read_csv('./data/departments.csv', split=',')
+    referendum = pd.read_csv('./data/referendum.csv', ';')
+    regions = pd.read_csv('./data/regions.csv', ',')
+    departments = pd.read_csv('./data/departments.csv', ',')
 
     return referendum, regions, departments
 
