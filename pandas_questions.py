@@ -18,6 +18,8 @@ def load_data():
     referendum = pd.read_csv('./data/referendum.csv', ';')
     regions = pd.read_csv('./data/regions.csv', ',')
     departments = pd.read_csv('./data/departments.csv', ',')
+    #we add a 0 to 9 first dept. codes
+    referendum['Department code'] = referendum['Department code'].apply(lambda x: x.rjust(2, '0'))
     return referendum, regions, departments
 
 
@@ -39,8 +41,9 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     You can drop the lines relative to DOM-TOM-COM departments, and the
     french living abroad.
     """
+    #as it is sorted, we can take the first 96 depts.
+    #which corresponds to metropolitan France
     regions_and_departments = regions_and_departments[0:96]
-    referendum['Department code'] = referendum['Department code'].apply(lambda x: x.zfill(2))
     df = pd.merge(regions_and_departments, referendum, 
                 left_on='code_dep', right_on='Department code', indicator=False)
     return df
