@@ -31,18 +31,11 @@ def merge_regions_and_departments(regions, departments):
     regions = regions.drop(columns=['id', 'slug'])
     departments = departments.drop(columns=['id', 'slug'])
     merge = departments.merge(regions, how="outer", left_on="region_code",
-                              right_on="code")
-    merge = merge.drop(columns=["code_y"])
-    merge = merge.rename(columns={"region_code": "code_reg",
-                                  "code_x": "code_dep",
-                                  "name_x": "name_dep", "name_y": "name_reg"})
-    cols = merge.columns.tolist()
-    tmp = cols[1]
-    cols[1] = cols[3]
-    cols[3] = cols[2]
-    cols[2] = tmp
+                              right_on="code",
+                              suffixes=('_dep', '_reg'))
+    merge = merge.drop(columns=["region_code"])
+    cols = ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     merge = merge[cols]
-
     return merge
 
 
