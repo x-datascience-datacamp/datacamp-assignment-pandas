@@ -24,11 +24,11 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
-    new_regions = regions.drop(['id','slug'], axis=1)
-    new_departments = departments.drop(['id','slug'], axis=1)
-    merged_df = pd.merge(new_regions, new_departments, 
+    new_regions = regions.drop(['id', 'slug'], axis=1)
+    new_departments = departments.drop(['id', 'slug'], axis=1)
+    merged_df = pd.merge(new_regions, new_departments,
                          left_on="code", right_on="region_code",
-                         suffixes=["_reg","_dep"])
+                         suffixes=["_reg", "_dep"])
     return merged_df.drop(['region_code'], axis=1)
 
 
@@ -38,7 +38,7 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     french living abroad.
     """
     referendum['Department code'] = referendum['Department code'].str.zfill(2)
-    return pd.merge(referendum,regions_and_departments,
+    return pd.merge(referendum, regions_and_departments,
                     left_on="Department code", right_on="code_dep")
 
 
@@ -47,11 +47,11 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     The return DataFrame should be indexed by `code_reg` and have columns:
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
-    group_columns = ["code_reg","name_reg"]
+    group_columns = ["code_reg", "name_reg"]
     grouped_by_regions = referendum_and_areas.groupby(
         group_columns, as_index=False)
     count_by_regions = grouped_by_regions[
-        ["Registered","Abstentions","Null","Choice A","Choice B"]].sum()
+        ["Registered", "Abstentions", "Null", "Choice A", "Choice B"]].sum()
     return count_by_regions.set_index('code_reg')
 
 
@@ -65,9 +65,9 @@ def plot_referendum_map(referendum_result_by_regions):
     """
     geographic_df = gpd.read_file("data/regions.geojson", sep=";")
     regions_geometry = pd.merge(
-        referendum_result_by_regions, 
-        geographic_df, 
-        left_on="code_reg", 
+        referendum_result_by_regions,
+        geographic_df,
+        left_on="code_reg",
         right_on="code").drop(['nom'], axis=1)
     regions_geometry['ratio'] = (
         regions_geometry['Choice A'] /
