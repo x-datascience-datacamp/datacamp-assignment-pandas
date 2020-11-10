@@ -15,11 +15,9 @@ import matplotlib.pyplot as plt
 
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
-    path = '/Users/simondemouchy/datacamp-assignment-pandas/data/'
-
-    referendum = pd.read_csv(path+'referendum.csv', sep=';')
-    regions = pd.read_csv(path+'regions.csv')
-    departments = pd.read_csv(path+'departments.csv')
+    referendum = pd.read_csv('data/referendum.csv', sep=';')
+    regions = pd.read_csv('data/regions.csv')
+    departments = pd.read_csv('data/departments.csv')
 
     return referendum, regions, departments
 
@@ -52,9 +50,8 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     referendum = referendum.rename(columns={'Department code': 'code_dep'})
     OUT = ['ZA', 'ZB', 'ZC', 'ZD', 'ZM', 'ZN', 'ZP', 'ZS', 'ZW', 'ZX', 'ZZ']
     referendum = referendum[-referendum['code_dep'].isin(OUT)]
-    
     df = merge_regions_and_departments(regions, departments)
-    df["code_dep"] = df["code_dep"].apply(lambda x : x.lstrip('0'))
+    df["code_dep"] = df["code_dep"].apply(lambda x: x.lstrip('0'))
     return pd.merge(referendum, df, on='code_dep')
 
 
@@ -77,10 +74,11 @@ def plot_referendum_map(referendum_result_by_regions):
       should display the rate of 'Choice A' over all expressed ballots.
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
-    path = '/Users/simondemouchy/datacamp-assignment-pandas/data/'
-    reg_map = gpd.read_file(path+'regions.geojson')
-    map_ref = gpd.GeoDataFrame(referendum_result_by_regions.merge(reg_map, right_on='nom', left_on='name_reg'))
-    map_ref['ratio'] = map_ref['Choice A'] / (map_ref['Choice A'] + map_ref['Choice B'])
+    reg_map = gpd.read_file(path+'data/regions.geojson')
+    df = referendum_result_by_regions
+    map_ref = gpd.GeoDataFrame(df.merge(reg_map, right_on='nom', left_on='name_reg'))
+    s = map_ref['Choice A'] + map_ref['Choice B']
+    map_ref['ratio'] = map_ref['Choice A'] / s
     map_ref.plot(column='ratio', legend=True)
     plt.show()
     return map_ref
