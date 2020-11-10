@@ -11,19 +11,17 @@ aggregate them by regions and finally plot them on a map using `geopandas`.
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
-import os
+from pathlib import Path
 
 ABROAD_REGION_CODES = ['01', '02', '03', '04', '06', 'COM']
-DIRNAME = os.path.dirname(__file__)
+DIRNAME = Path('.')
 
 
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
-    referendum = pd.read_csv(
-        os.path.join(DIRNAME, "data", "referendum.csv"), sep=";"
-    )
-    regions = pd.read_csv(os.path.join(DIRNAME, "data", "regions.csv"))
-    departments = pd.read_csv(os.path.join(DIRNAME, "data", "departments.csv"))
+    referendum = pd.read_csv(DIRNAME / "data" / "referendum.csv", sep=";")
+    regions = pd.read_csv(DIRNAME / "data" / "regions.csv")
+    departments = pd.read_csv(DIRNAME / "data" / "departments.csv")
     return referendum, regions, departments
 
 
@@ -94,9 +92,7 @@ def plot_referendum_map(referendum_result_by_regions):
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
     # Load the geographic data with geopandas from `regions.geojson`
-    geo_df = gpd.read_file(
-        os.path.join(DIRNAME, "data", "regions.geojson"), sep=";"
-    )
+    geo_df = gpd.read_file(DIRNAME / "data" / "regions.geojson", sep=";")
     # Merge these info into `referendum_result_by_regions` and dropping
     # duplicate name column
     regions_geometry = pd.merge(
@@ -131,5 +127,5 @@ if __name__ == "__main__":
     )
 
     plot_referendum_map(referendum_results)
-    plt.savefig(os.path.join(DIRNAME, "data", "votes.png"))
+    plt.savefig(DIRNAME / "data" / "votes.png")
     plt.show()
