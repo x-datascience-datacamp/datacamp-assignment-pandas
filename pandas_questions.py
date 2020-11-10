@@ -19,17 +19,26 @@ def load_data():
     regions = pd.DataFrame({})
     departments = pd.DataFrame({})
 
+    referendum = pd.read_csv("./data/referendum.csv", delimiter=";")
+    regions = pd.read_csv("./data/regions.csv")
+    departments = pd.read_csv("./data/departments.csv")
+
     return referendum, regions, departments
 
 
 def merge_regions_and_departments(regions, departments):
     """Merge regions and departments in one DataFrame.
-
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
+    df = pd.merge(regions[['code', 'name']],
+                  departments[['region_code', 'code', 'name']],
+                  left_on=['code'],
+                  right_on=['region_code'],
+                  how='left',
+                  suffixes=('_reg', '_dep')).drop(['region_code'], axis=1)
+    return df
 
-    return pd.DataFrame({})
 
 
 def merge_referendum_and_areas(referendum, regions_and_departments):
