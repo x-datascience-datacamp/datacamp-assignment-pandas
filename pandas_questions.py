@@ -32,8 +32,8 @@ def merge_regions_and_departments(regions, departments):
     departments = departments.drop(columns=['id', 'slug'])
     merge = departments.merge(regions, how="outer", left_on="region_code", right_on="code")
     merge = merge.drop(columns=["code_y"])
-    merge = merge.rename(columns={"region_code": "code_reg", "code_x": "code_dep", "name_x": "name_dep",
-                                  "name_y": "name_reg"})
+    merge = merge.rename(columns={"region_code": "code_reg", "code_x": "code_dep",
+                                  "name_x": "name_dep", "name_y": "name_reg"})
     cols = merge.columns.tolist()
     tmp = cols[1]
     cols[1] = cols[3]
@@ -50,22 +50,11 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     You can drop the lines relative to DOM-TOM-COM departments, and the
     french living abroad.
     """
-    regions_and_departments = regions_and_departments.replace('01', '1')
-    regions_and_departments = regions_and_departments.replace('02', '2')
-    regions_and_departments = regions_and_departments.replace('03', '3')
-    regions_and_departments = regions_and_departments.replace('04', '4')
-    regions_and_departments = regions_and_departments.replace('05', '5')
-    regions_and_departments = regions_and_departments.replace('06', '6')
-    regions_and_departments = regions_and_departments.replace('07', '7')
-    regions_and_departments = regions_and_departments.replace('08', '8')
-    regions_and_departments = regions_and_departments.replace('09', '9')
+    regions_and_departments["code_dep"] = regions_and_departments["code_dep"].apply(
+        lambda value: value[1] if value[0] == '0' else value)
     merge = referendum.merge(regions_and_departments, how="inner", left_on="Department code", right_on="code_dep")
-    merge = merge.drop(merge[merge.name_reg == "Collectivités d'Outre-Mer"].index)
-    merge = merge.drop(merge[merge.name_reg == "Guadeloupe"].index)
-    merge = merge.drop(merge[merge.name_reg == "Mayotte"].index)
-    merge = merge.drop(merge[merge.name_reg == "Guyane"].index)
-    merge = merge.drop(merge[merge.name_reg == "La Réunion"].index)
-    merge = merge.drop(merge[merge.name_reg == "Martinique"].index)
+    merge = merge.drop(merge[merge["name_reg"].isin(["Collectivités d'Outre-Mer", "Guadeloupe",
+                                                     "Mayotte", "Guyane", "La Réunion", "Martinique"])].index)
     return merge
 
 
@@ -76,11 +65,11 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
     results = referendum_and_areas.groupby(['code_reg', 'name_reg'])[['Registered',
-                                                                     'Abstentions',
-                                                                     'Null',
-                                                                     'Choice A',
-                                                                     'Choice B',
-                                                                     'name_reg']].sum().reset_index()
+                                                                      'Abstentions',
+                                                                      'Null',
+                                                                      'Choice A',
+                                                                      'Choice B',
+                                                                      'name_reg']].sum().reset_index()
     results = results.set_index('code_reg')
     return results
 
@@ -97,7 +86,6 @@ def plot_referendum_map(referendum_result_by_regions):
     data = gpd.read_file("data/regions.geojson")
     merge = data.merge(referendum_result_by_regions, how="outer", left_on='nom', right_on='name_reg')
     merge['ratio'] = merge['Choice A'] /(merge['Choice B'] + merge['Choice A'])
-    print(merge)
     merge.plot()
     return merge
 
@@ -112,11 +100,9 @@ if __name__ == "__main__":
     regions_and_departments = merge_regions_and_departments(
         df_reg, df_dep
     )
-    # print(regions_and_departments)
     referendum_and_areas = merge_referendum_and_areas(
         referendum, regions_and_departments
     )
-    print(referendum_and_areas)
     referendum_results = compute_referendum_result_by_regions(
         referendum_and_areas
     )
