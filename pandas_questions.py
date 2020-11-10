@@ -15,11 +15,11 @@ import matplotlib.pyplot as plt
 
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
-    departments = pd.read_csv("data/departments.csv")
-    regions = pd.read_csv("data/regions.csv")
-    referendum = pd.read_csv("data/referendum.csv", sep=";")
+    ref = pd.read_csv("data/referendum.csv", sep=";")
+    dep = pd.read_csv("data/departments.csv")
+    reg = pd.read_csv("data/regions.csv")
 
-    return referendum, regions, departments
+    return ref, reg, dep
 
 
 def merge_regions_and_departments(regions, departments):
@@ -28,8 +28,9 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
-    areas = pd.merge(regions[['code', 'name']],departments[['region_code', 'code', 'name']], left_on='code',
-                     right_on='region_code', suffixes=('_reg', '_dep'), sort=True)
+    areas = pd.merge(regions[['code', 'name']], departments[['region_code', 'code', 'name']],
+                     left_on='code', right_on='region_code', suffixes=('_reg', '_dep'),
+                     sort=True)
     areas = areas.drop(['region_code'], axis=1)
     return areas
 
@@ -51,8 +52,10 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     The return DataFrame should be indexed by `code_reg` and have columns:
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
-
-    return pd.DataFrame({})
+    computed = referendum_and_areas[['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']]\
+        .groupby('name_reg').sum()
+    computed["name_reg"] = list(computed.index)
+    return computed
 
 
 def plot_referendum_map(referendum_result_by_regions):
