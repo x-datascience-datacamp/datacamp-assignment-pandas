@@ -34,18 +34,16 @@ def merge_regions_and_departments(regions, departments):
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
     # dropping unecessary columns and renaming for each dataframe
-    modified_regions = regions.drop(['id', 'slug'], axis=1).rename(
-        columns={'code': 'code_reg', 'name': 'name_reg'}
-    )
-    modified_departments = departments.drop(['id', 'slug'], axis=1).rename(
-        columns={'code': 'code_dep', 'name': 'name_dep'}
-    )
+    columns_to_drop = ['id', 'slug']
+    modified_regions = regions.drop(columns_to_drop, axis=1)
+    modified_departments = departments.drop(columns_to_drop, axis=1)
     # merge on region code
     merged_df = pd.merge(
         modified_regions,
         modified_departments,
-        left_on="code_reg",
-        right_on="region_code"
+        left_on="code",
+        right_on="region_code",
+        suffixes=["_reg", "_dep"]
     )
     return merged_df.drop(['region_code'], axis=1)
 
