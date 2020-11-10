@@ -88,30 +88,16 @@ def plot_referendum_map(referendum_result_by_regions):
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
     # Loading the geographic data
-    df = pd.read_json('data/regions.geojson')
-    df2 = pd.concat([df.drop(['features'], axis=1),
-                     df['features'].apply(pd.Series)], axis=1)
-    df3 = pd.concat([df2.drop(['properties'], axis=1),
-                     df2['properties'].apply(pd.Series)], axis=1)
-    referendum_result_by_regions = pd.merge(referendum_result_by_regions,
-                                            df3,
-                                            left_on='code_reg',
-                                            right_on='code',
-                                            how='left') \
-        .drop(columns=['type', 'nom']) \
-        .rename(columns={'code': 'code_reg'})
-    referendum_result_by_regions['geometry'] = \
-        referendum_result_by_regions['geometry'] \
-        .apply((lambda x: shapely.wkt.loads(convert.geojson_to_wkt(x))))
-    gpd_referendum_result_by_regions = gpd.GeoDataFrame(
-        referendum_result_by_regions,
-        geometry=referendum_result_by_regions['geometry'])
-    gpd_referendum_result_by_regions['ratio'] = \
-        gpd_referendum_result_by_regions['Choice A'] / \
-        (gpd_referendum_result_by_regions['Choice A'] +
-         gpd_referendum_result_by_regions['Choice B'])
-    gpd_referendum_result_by_regions.plot(column='ratio')
-    return gpd_referendum_result_by_regions
+    geo_data = gpd.read_file('data/regions.geojson')
+    df = pd.merge(referendum_result_by_regions,
+                  geo_data,
+                  left_on='code_reg',
+                  right_on='code',
+                  how='left')
+    gpd_df = gpd.GeoDataFrame(df, geometry=df['geometry'])
+    gpd_df['ratio'] = gpd_df['Choice A'] / (gpd_df['Choice A'] + gpd_df['Choice B'])
+    gpd_df.plot(column='ratio')
+    return gpd_df
 
 
 if __name__ == "__main__":
