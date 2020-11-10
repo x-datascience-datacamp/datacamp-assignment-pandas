@@ -48,22 +48,15 @@ def merge_regions_and_departments(regions, departments):
     df : pandas.DataFrame
         merged dataframes
 
-    Raises
-    ------
-    None
-
     """
-    df = pd.DataFrame({
-        "code_reg": departments["region_code"],
-        "name_reg": ["" for _ in range(departments.shape[0])],
-        "code_dep": departments["code"],
-        "name_dep": departments["name"]
-    })
-    for i, row in regions.iterrows():
-        mask = df["code_reg"] == row["code"]
-        df.loc[mask, "name_reg"] = row["name"]
+    df = pd.merge(
+        departments,
+        regions,
+        left_on='region_code',
+        right_on='code',
+        suffixes=['_dep', '_reg'])
 
-    return df
+    return df[['code_reg', 'name_reg', 'code_dep', 'name_dep']]
 
 
 def merge_referendum_and_areas(referendum, regions_and_departments):
@@ -84,26 +77,23 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     -------
     df : pandas.DataFrame
         merged dataframes
+
     """
     # Removing DOM-TOM-COM and French living abroad
     dep_codes = np.unique(referendum["Department code"])
     dep_codes = [el for el in dep_codes if not el.isalpha()]
     df = referendum.loc[referendum["Department code"].isin(dep_codes)].copy()
 
+    # Reverting department codes to standard format
+    # i.e: removing '0' if code is '01'
+    regions_and_departments['code_dep'] = regions_and_departments[
+        'code_dep'].apply(lambda x: x[1] if x[0] == '0' else x)
+
     # Merging
-    for col in regions_and_departments.columns:
-        df[col] = ["" for _ in range(df.shape[0])]
-    for i, row in regions_and_departments.iterrows():
-        dep_code = row["code_dep"]
-        try:
-            dep_code = str(int(dep_code))
-        except:
-            pass
-        mask = (df["Department code"] == dep_code)
-        df["code_dep"] = df["code_dep"].mask(mask, row["code_dep"]).to_numpy()
-        df["name_dep"] = df["name_dep"].mask(mask, row["name_dep"]).to_numpy()
-        df["code_reg"] = df["code_reg"].mask(mask, row["code_reg"]).to_numpy()
-        df["name_reg"] = df["name_reg"].mask(mask, row["name_reg"]).to_numpy()
+    df = pd.merge(df,
+                  regions_and_departments,
+                  left_on='Department code',
+                  right_on='code_dep', how='left')
 
     return df
 
@@ -123,12 +113,19 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     -------
     df : pandas.DataFrame
         dataframe grouped by region
+
     """
     df = referendum_and_areas.groupby(["name_reg"]).sum()
     df["name_reg"] = list(df.index)
     df.index = list(range(df.shape[0]))
+    cols = ['name_reg',
+            'Registered',
+            'Abstentions',
+            'Null',
+            'Choice A',
+            'Choice B']
 
-    return df[['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']]
+    return df[cols]
 
 
 def plot_referendum_map(referendum_result_by_regions):
@@ -148,15 +145,17 @@ def plot_referendum_map(referendum_result_by_regions):
     Returns
     -------
     geopandas.GeoDataFrame object
+
     """
     region_map = gpd.read_file("./data/regions.geojson")
     # Column names: code, nom, geometry
 
-    df = {"geometry" : list()}
+    df = {"geometry": list()}
     for col in referendum_result_by_regions.columns:
         df[col] = referendum_result_by_regions[col]
     for i, row in referendum_result_by_regions.iterrows():
-        df["geometry"].append(region_map.loc[region_map["nom"] == row["name_reg"]]["geometry"].values[0])
+        mask = region_map["nom"] == row["name_reg"]
+        df["geometry"].append(region_map.loc[mask]["geometry"].values[0])
     df = gpd.GeoDataFrame(df, crs=region_map.crs)
     df["ratio"] = df["Choice A"] / (df["Choice B"] + df["Choice A"])
     df.plot(column="ratio", legend=True)
@@ -174,12 +173,11 @@ if __name__ == "__main__":
     referendum_and_areas = merge_referendum_and_areas(
         referendum, regions_and_departments
     )
-    
+
     referendum_results = compute_referendum_result_by_regions(
         referendum_and_areas
     )
-    #print(referendum_results)
+    print(referendum_results)
 
     plot_referendum_map(referendum_results)
     plt.show()
-    
