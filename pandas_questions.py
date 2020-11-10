@@ -17,8 +17,8 @@ import matplotlib.pyplot as plt
 def load_data():
     """Load data from the CSV files referendum/regions/departments."""
     referendum = pd.read_csv('./data/referendum.csv', delimiter=';')
-    regions = pd.read_csv('./data/regions.csv', delimiter=';')
-    departments = pd.read_csv('./data/departments.csv', delimiter=';')
+    regions = pd.read_csv('./data/regions.csv', delimiter=',')
+    departments = pd.read_csv('./data/departments.csv', delimiter=',')
 
     return referendum, regions, departments
 
@@ -56,9 +56,12 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     referendum = referendum.loc[referendum['Department code'] != 'ZC']
     referendum = referendum.loc[referendum['Department code'] != 'ZB']
     referendum = referendum.loc[referendum['Department code'] != 'ZA']
-    merged = pd.merge(ref,
-                      regions_and_departments,
-                      left_on='Department code', right_on='code_dep',
+    referendum['Department code'
+               ] = referendum['Department code'
+                              ].apply(lambda x: x.zfill(2))
+    merged = pd.merge(regions_and_departments,
+                      referendum,
+                      left_on='code_dep', right_on='Department code',
                       how='inner')
     merged = merged[['code_reg',
                      'name_reg',
@@ -70,7 +73,9 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
                      'Abstentions',
                      'Null',
                      'Choice A',
-                     'Choice B']]
+                     'Choice B',
+                     'Department code',
+                     'Department name']]
     return merged
 
 
@@ -82,12 +87,14 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     """
     a = referendum_and_areas.groupby(['code_reg',
                                       'name_reg'],
-                                     as_index=False)[['Registered',
+                                     as_index=False)[['name_reg',
+                                                      'Registered',
                                                       'Abstentions',
                                                       'Null',
                                                       'Choice A',
                                                       'Choice B']
                                                      ].sum()
+    a.set_index('code_reg', inplace=True)
     return a
 
 
