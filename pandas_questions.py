@@ -39,6 +39,8 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     french living abroad.
     """
 
+    # test de commit
+
     return pd.DataFrame({})
 
 
