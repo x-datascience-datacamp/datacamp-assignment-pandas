@@ -30,11 +30,13 @@ def merge_regions_and_departments(regions, departments):
     regions.drop(['id', 'slug'], axis=1, inplace=True)
     departments.drop(['id', 'slug'], axis=1, inplace=True)
     regions = regions.rename(columns={'code': 'code_reg', 'name': 'name_reg'})
-    cols_rename = {'region_code': 'code_reg', 'code': 'code_dep',
-                    'name': 'name_dep'}
+    cols_rename = {
+        'region_code': 'code_reg', 'code': 'code_dep','name': 'name_dep'
+    }
     departments = departments.rename(columns=cols_rename)
-    regions_and_departments = pd.merge(departments, regions, on='code_reg',
-                                        how='left')
+    regions_and_departments = pd.merge(
+        departments, regions, on='code_reg',how='left'
+    )
     return regions_and_departments
 
 
@@ -48,8 +50,9 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     r_and_d = r_and_d[r_and_d['code_dep'].str.len() == 2]
     referendum = referendum[~referendum['Department code'].str.contains('Z')]
     referendum['Department code'] = referendum['Department code'].str.zfill(2)
-    r_and_a = pd.merge(referendum, r_and_d, left_on='Department code',
-                                    right_on='code_dep')
+    r_and_a = pd.merge(
+        referendum, r_and_d, left_on='Department code', right_on='code_dep'
+    )
     return r_and_a
 
 
@@ -77,10 +80,14 @@ def plot_referendum_map(referendum_result_by_regions):
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
     gdf = gpd.read_file('data/regions.geojson')
-    df = pd.merge(referendum_result_by_regions, gdf,
-                  left_on="code_reg", right_on="code").drop(['nom'], axis=1)
-    df['ratio'] = (df['Choice A'] /
-                   (df['Registered'] - df['Abstentions'] - df['Null']))
+    df = pd.merge(
+        referendum_result_by_regions, gdf,
+        left_on="code_reg", right_on="code").drop(['nom'], axis=1
+    )
+    df['ratio'] = (
+        df['Choice A'] /
+        (df['Registered'] - df['Abstentions'] - df['Null'])
+    )
     geo_df = gpd.GeoDataFrame(df)
     geo_df.plot(column="ratio")
     return geo_df
