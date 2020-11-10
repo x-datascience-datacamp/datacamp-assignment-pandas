@@ -32,7 +32,7 @@ def merge_regions_and_departments(regions, departments):
     merges = pd.merge(regions, departments, left_on="code",
                       right_on="region_code", suffixes=("_reg", "_dep"))
     merges = merges[['code_reg', 'name_reg', 'code_dep', 'name_dep']]
-    # merge en fonction de code et region code
+
     return merges
 
 
@@ -48,7 +48,7 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     merges = pd.merge(referendum, regions_and_departments, how="left",
                       left_on="Department code", right_on="code_dep")
     merges = merges.dropna()
-    # supprime nan
+
     return merges
 
 
@@ -62,6 +62,7 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     referendum_and_areas = referendum_and_areas.drop("Town code", axis=1)
     referendum_and_areas = referendum_and_areas.groupby(
                            ["code_reg", "name_reg"]).sum()
+
     return referendum_and_areas.reset_index().set_index("code_reg")
 
 
@@ -83,6 +84,7 @@ def plot_referendum_map(referendum_result_by_regions):
     GeoDF.plot("ratio", legend=True)
     plt.title("Rate of 'Choice A' over all expressed ballots")
     plt.show()
+
     return GeoDF
 
 
