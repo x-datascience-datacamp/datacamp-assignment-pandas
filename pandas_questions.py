@@ -32,7 +32,7 @@ def merge_regions_and_departments(regions, departments):
     df1 = df1.rename(columns={'code': 'code_reg', 'name': 'name_reg'})
     df2 = departments.iloc[:, 1:4]
     df2 = df2.rename(columns={'region_code': 'code_reg',
-                                'name': 'name_dep',
+                            'name': 'name_dep',
                                 'code': 'code_dep'})
     df_join = df1.merge(df2, left_on='code_reg', right_on='code_reg')
     return df_join
@@ -49,8 +49,8 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     df = regions_and_departments["code_dep"]
     regions_and_departments["code_dep"] = df.replace(L1, L2)
     df1 = referendum.merge(regions_and_departments,
-                            left_on='Department code',
-                            right_on='code_dep')
+                        left_on='Department code',
+                        right_on='code_dep')
     df1 = df1[~df1['Department code'].str.startswith("Z")]
     return df1
 
