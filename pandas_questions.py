@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
+    # hi
     referendum = pd.DataFrame({})
     regions = pd.DataFrame({})
     departments = pd.DataFrame({})
