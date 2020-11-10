@@ -30,7 +30,6 @@ def load_data():
     departments = pd.read_csv(os.path.join(DIRNAME,
                                            "data",
                                            "departments.csv"), sep=",")
-
     return referendum, regions, departments
 
 
