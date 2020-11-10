@@ -30,12 +30,9 @@ def merge_regions_and_departments(regions, departments):
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
     merge = pd.merge(departments, regions, left_on='region_code', 
-                     right_on='code')
+                     right_on='code', suffixes=['_dep', '_reg'])
     cols = ['code_reg', 'name_reg', 'code_dep', 'name_dep']
-    return merge.rename(columns={'region_code': 'code_reg', 
-                                 'name_y': 'name_reg', 
-                                 'code_x': 'code_dep', 
-                                 'name_x': 'name_dep'})[cols]
+    return merge[cols]
 
 
 def merge_referendum_and_areas(referendum, regions_and_departments):
@@ -46,16 +43,9 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     """
     referendum = referendum[referendum["Department name"] != 
     "FRANCAIS DE L'ETRANGER"]
-    referendum = referendum[referendum['Department code'].isin(
-        referendum['Department code'].unique()[:-10])]
-    col = []
-    for x in regions_and_departments['code_dep']:
-        if x[0] == '0':
-            col.append(x[1])
-        else:
-            col.append(x)
-
-    regions_and_departments['code_dep'] = col
+    referendum = referendum[~referendum['Department code'].str.startswith('Z')]
+    regions_and_departments['code_dep'] = regions_and_departments[
+        'code_dep'].apply(lambda x: x[1] if x[0] == '0' else x)
     return pd.merge(referendum, 
                     regions_and_departments, 
                     left_on='Department code', 
