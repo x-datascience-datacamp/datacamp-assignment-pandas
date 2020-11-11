@@ -1,5 +1,7 @@
-numpy
-pandas
+numpy~=1.19.4
+pandas~=1.1.4
 pytest
-geopandas
+geopandas~=0.8.1
 descartes
+
+matplotlib~=3.3.2
