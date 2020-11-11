@@ -19,6 +19,7 @@ def load_data():
     regions = pd.read_csv("data/regions.csv", sep=',')
     departments = pd.read_csv("data/departments.csv", sep=',')
     departments['code'] = departments['code'].apply(lambda x: x.lstrip("0"))
+
     return referendum, regions, departments
 
 
@@ -30,7 +31,9 @@ def merge_regions_and_departments(regions, departments):
     """
     merged = pd.merge(regions, departments, left_on='code',
                       right_on='region_code', suffixes=('_reg', '_dep'))
-    result = merged[['code_reg', 'name_reg', 'code_dep', 'name_dep']]
+    cols = ['code_reg', 'name_reg', 'code_dep', 'name_dep']
+    result = merged[cols]
+
     return result
 
 
@@ -42,6 +45,7 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     """
     merged = pd.merge(referendum, regions_and_departments,
                       left_on='Department code', right_on='code_dep')
+
     return merged
 
 
@@ -51,13 +55,13 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     The return DataFrame should be indexed by `code_reg` and have columns:
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
+    cols = ['Registered', 'Abstentions',
+            'Null', 'Choice A', 'Choice B']
     grouped = referendum_and_areas.groupby(
         ['code_reg', 'name_reg'], as_index=False)
-    counts = grouped.sum()
-    cols = ['name_reg', 'Registered', 'Abstentions',
-            'Null', 'Choice A', 'Choice B']
-    counts = counts[cols]
-    return counts
+    counts = grouped[cols].sum()
+
+    return counts.set_index('code_reg')
 
 
 def plot_referendum_map(referendum_result_by_regions):
@@ -71,13 +75,13 @@ def plot_referendum_map(referendum_result_by_regions):
     """
     regions = gpd.read_file('data/regions.geojson')
     cols = ['Choice A', 'Choice B']
-    ref = referendum_result_by_regions
-    ref['ratio'] = ref['Choice A'] / \
-        ref[cols].sum(axis=1)
-    result = regions.merge(referendum_result_by_regions,
-                           left_on='nom', right_on='name_reg')
-    result.plot(column='ratio')
-    return result
+    res = referendum_result_by_regions
+    res['ratio'] = res['Choice A'] / res[cols].sum(axis=1)
+    map = regions.merge(referendum_result_by_regions,
+                        left_on='nom', right_on='name_reg')
+    map.plot(column='ratio')
+
+    return map
 
 
 if __name__ == "__main__":
