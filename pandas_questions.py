@@ -15,11 +15,9 @@ import matplotlib.pyplot as plt
 
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
-    x=2
-    referendum = pd.DataFrame({})
-    regions = pd.DataFrame({})
-    departments = pd.DataFrame({})
-
+    referendum = pd.read_csv("data/referendum.csv", sep=';')
+    regions = pd.read_csv("data/regions.csv", sep=',')
+    departments = pd.read_csv("data/departments.csv", sep=',')
     return referendum, regions, departments
 
 
@@ -29,8 +27,16 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
+    df_merged = pd.merge(regions, departments, left_on="code",
+                         right_on="region_code")[
+        ["code_x", "name_x", "code_y", "name_y"]]
+    df_merged = df_merged.rename(columns={
+                                 "code_x": "code_reg",
+                                 "name_x": "name_reg",
+                                 "code_y": "code_dep",
+                                 "name_y": "name_dep"})
 
-    return pd.DataFrame({})
+    return df_merged
 
 
 def merge_referendum_and_areas(referendum, regions_and_departments):
@@ -39,8 +45,23 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     You can drop the lines relative to DOM-TOM-COM departments, and the
     french living abroad.
     """
+    def remove_zeros(x):
+        if x[0] != "0":
+            return x
+        else:
+            return x[1:]
 
-    return pd.DataFrame({})
+    referendum = referendum.loc[~referendum["Department code"].str.contains("Z"
+                                                                            )]
+    regions_and_departments = regions_and_departments.loc[
+        regions_and_departments["code_reg"] != "COM"]
+    dumpy_var_to_satisfy_flake8 = regions_and_departments["code_dep"].apply(
+        remove_zeros)
+    regions_and_departments["code_dep"] = dumpy_var_to_satisfy_flake8
+    df_merged = pd.merge(referendum, regions_and_departments,
+                         left_on="Department code", right_on="code_dep")
+
+    return df_merged
 
 
 def compute_referendum_result_by_regions(referendum_and_areas):
@@ -49,21 +70,40 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     The return DataFrame should be indexed by `code_reg` and have columns:
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
-
-    return pd.DataFrame({})
+    referendum_and_areas_test = referendum_and_areas[[
+        'code_reg', 'Registered', 'Abstentions', 'Null',
+        'Choice A', 'Choice B']]
+    referendum_and_areas_test = referendum_and_areas_test.groupby(
+        "code_reg").sum()
+    name_reg = referendum_and_areas[[
+        "name_reg", "code_reg"]].set_index("code_reg")
+    name_reg = name_reg.drop_duplicates()
+    name_reg.merge(referendum_and_areas_test, left_index=True,
+                   right_index=True, how="right")
+    return name_reg.merge(referendum_and_areas_test, left_index=True,
+                          right_index=True, how="right")
 
 
 def plot_referendum_map(referendum_result_by_regions):
     """Plot a map with the results from the referendum.
 
-    * Load the geographic data with geopandas from `regions.geojson`.
-    * Merge these info into `referendum_result_by_regions`.
-    * Use the method `GeoDataFrame.plot` to display the result map. The results
+    * Load the geographic data with geopandas from regions.geojson.
+    * Merge these info into referendum_result_by_regions.
+    * Use the method GeoDataFrame.plot to display the result map. The results
       should display the rate of 'Choice A' over all expressed ballots.
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
-
-    return gpd.GeoDataFrame({})
+    geographic_data = gpd.read_file("data/regions.geojson").set_index("code")
+    ratio_df = pd.merge(right=referendum_result_by_regions,
+                        left=geographic_data,
+                        right_index=True,
+                        left_on="code")
+    choice_A = ratio_df["Choice A"]
+    choice_B = ratio_df["Choice B"]
+    ratio = choice_A / (choice_A + choice_B)
+    ratio_df["ratio"] = ratio
+    ratio_df.plot(column="ratio")
+    return gpd.GeoDataFrame(ratio_df)
 
 
 if __name__ == "__main__":
