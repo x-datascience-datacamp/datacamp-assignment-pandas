@@ -43,13 +43,16 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     french living abroad.
     """
     referendum, regions, departments = load_data()
-    '#regions_and_departments = merge_regions_and_departments(regions, departments)'
+    merging_referendum = regions_and_departments[
+        regions_and_departments[
+            'code_dep'].str.len() == 2]
+    referendum = referendum[~referendum['Department code'].str.contains('Z')]
+    referendum['Department code'] = referendum[
+        'Department code'].str.zfill(2)
     merging_referendum = pd.merge(
-                            merge_regions_and_departments(
-                                regions, departments),
-                            referendum,
-                            left_on=['code_dep'],
-                            right_on=['Department code'])
+        referendum, merging_referendum,
+        left_on='Department code', right_on='code_dep'
+    )
     return merging_referendum
 
 
