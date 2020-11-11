@@ -15,9 +15,9 @@ import matplotlib.pyplot as plt
 
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
-    referendum = pd.read_csv("data/referendum.csv",sep=';')
-    regions = pd.read_csv("data/regions.csv",sep=',')
-    departments = pd.read_csv("data/departments.csv",sep=',')
+    referendum = pd.read_csv("data/referendum.csv", sep=';')
+    regions = pd.read_csv("data/regions.csv", sep=',')
+    departments = pd.read_csv("data/departments.csv", sep=',')
 
     return referendum, regions, departments
 
@@ -28,8 +28,7 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
-    df_merge = pd.merge(regions, departments, left_on="code",
-    right_on="region_code", suffixes=("_reg","_dep"))
+    df_merge = pd.merge(regions, departments, left_on="code", right_on="region_code", suffixes=("_reg","_dep"))
     columns = ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     return df_merge[columns]
 
@@ -42,8 +41,7 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     """
     regions_and_departments['code_dep'] = regions_and_departments["code_dep"]\
         .apply(lambda x: x[1] if x[0] == '0' else x)
-    df_merge = pd.merge(referendum,regions_and_departments,left_on='Department code',
-                right_on='code_dep')
+    df_merge = pd.merge(referendum, regions_and_departments, left_on='Department code', right_on='code_dep')
     return df_merge
 
 
@@ -67,9 +65,9 @@ def plot_referendum_map(referendum_result_by_regions):
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
     geo_data=gpd.read_file("data/regions.geojson")
-    df_merge=pd.merge(referendum_result_by_regions,geo_data,left_on='name_reg',right_on='nom')
-    expressed_ballots=df_merge['Registered']-df_merge['Abstentions']-df_merge['Null']
-    df_merge['ratio']=df_merge['Choice A']/expressed_ballots
+    df_merge=pd.merge(referendum_result_by_regions, geo_data, left_on='name_reg', right_on='nom')
+    expressed_ballots = df_merge['Registered']-df_merge['Abstentions']-df_merge['Null']
+    df_merge['ratio'] = df_merge['Choice A']/expressed_ballots
     return gpd.GeoDataFrame(df_merge)
 
 
