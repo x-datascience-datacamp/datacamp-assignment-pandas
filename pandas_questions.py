@@ -59,8 +59,8 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     Columns = ["code_reg", "name_reg", "Registered",
                "Abstentions", "Null",
                "Choice A", "Choice B"]
-    Absolute = Absolute[Columns]
-    Absolute.groupby(['code_reg', 'name_reg'], as_index=False).sum()
+    Absolute = Absolute.groupby(['code_reg', 'name_reg'],
+                                as_index=False)[Columns].sum()
     Absolute = Absolute.set_index("code_reg")
     return Absolute
 
