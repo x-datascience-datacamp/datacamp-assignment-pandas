@@ -1,0 +1,10 @@
+{
+    "python.pythonPath": "C:\\Users\\kaisc\\anaconda3\\envs\\datacamp\\python.exe",
+    "python.linting.enabled": true,
+    "python.testing.pytestArgs": [
+        "."
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.pytestEnabled": true
+}
