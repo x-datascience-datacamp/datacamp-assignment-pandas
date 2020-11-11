@@ -15,10 +15,10 @@ aggregate them by regions and finally plot them on a map using `geopandas` o.
 
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
-    filename_ref = "/Users/Aris/datacamp-assignment-pandas/data/referendum.csv"
-    filename_reg = "/Users/Aris/datacamp-assignment-pandas/data/regions.csv"
+    filename_ref = "/data/referendum.csv"
+    filename_reg = "/data/regions.csv"
     filename_dep = \
-        "/Users/Aris/datacamp-assignment-pandas/data/departments.csv"
+        "/data/departments.csv"
     referendum = pd.DataFrame(pd.read_csv(filename_ref, sep=";"))
     regions = pd.DataFrame(pd.read_csv(filename_reg, sep=","))
     departments = pd.DataFrame(pd.read_csv(filename_dep, sep=","))
@@ -85,7 +85,7 @@ def plot_referendum_map(referendum_result_by_regions):
       should display the rate of 'Choice A' ove all expressed ballots.
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
-    filenamegpd = "/Users/Aris/datacamp-assignment-pandas/data/regions.geojson"
+    filenamegpd = "/data/regions.geojson"
     df = gpd.read_file(filenamegpd)
     df.rename(columns={"nom": "name_reg"}, inplace=True)
     df_2 = pd.merge(referendum_result_by_regions, df, on='name_reg',
