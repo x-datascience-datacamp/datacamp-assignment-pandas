@@ -43,7 +43,7 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     regions_and_departments['code_dep'] = regions_and_departments["code_dep"]\
         .apply(lambda x: x[1] if x[0] == '0' else x)
     df_merge = pd.merge(referendum, regions_and_departments,
-    left_on='Department code', right_on='code_dep')
+                        left_on='Department code', right_on='code_dep')
     return df_merge
 
 
@@ -53,7 +53,7 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     The return DataFrame should be indexed by `code_reg` and have columns:
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
-    columns=['Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
+    columns = ['Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     referendum_results = referendum_and_areas.groupby('name_reg')[columns].sum()
     return referendum_results.reset_index()
 
@@ -69,7 +69,7 @@ def plot_referendum_map(referendum_result_by_regions):
     """
     geo_data = gpd.read_file("data/regions.geojson")
     cop = referendum_result_by_regions.copy()
-    df_merge=pd.merge(cop, geo_data, left_on='name_reg', right_on='nom')
+    df_merge = pd.merge(cop, geo_data, left_on='name_reg', right_on='nom')
     exp_bal = df_merge['Registered']-df_merge['Abstentions']-df_merge['Null']
     df_merge['ratio'] = df_merge['Choice A']/exp_bal
     return gpd.GeoDataFrame(df_merge)
