@@ -16,9 +16,9 @@ import matplotlib.pyplot as plt
 
 def load_data():
     """Load data from the CSV files referundum/regions/departments."""
-    referendum = pd.DataFrame(pd.read_csv("./data/referendum.csv", sep=";"))
-    regions = pd.DataFrame(pd.read_csv("./data/regions.csv"))
-    departments = pd.DataFrame(pd.read_csv("./data/departments.csv"))
+    referendum = pd.read_csv("./data/referendum.csv", sep=";")
+    regions = pd.read_csv("./data/regions.csv")
+    departments = pd.read_csv("./data/departments.csv")
 
     return referendum, regions, departments
 
@@ -48,7 +48,8 @@ def merge_regions_and_departments(regions, departments):
         regions,
         left_on='region_code',
         right_on='code',
-        suffixes=['_dep', '_reg'])
+        suffixes=['_dep', '_reg']
+        )
 
     return df[['code_reg', 'name_reg', 'code_dep', 'name_dep']]
 
@@ -87,7 +88,9 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     df = pd.merge(df,
                   regions_and_departments,
                   left_on='Department code',
-                  right_on='code_dep', how='left')
+                  right_on='code_dep',
+                  how='left'
+                  )
 
     return df
 
@@ -142,17 +145,14 @@ def plot_referendum_map(referendum_result_by_regions):
 
     """
     region_map = gpd.read_file("./data/regions.geojson")
+    df = region_map.merge(referendum_result_by_regions,
+                          left_on="nom",
+                          right_on="name_reg",
+                          how="right"
+                          )
 
-    df = {"geometry": list()}
-    for col in referendum_result_by_regions.columns:
-        df[col] = referendum_result_by_regions[col]
-    for i, row in referendum_result_by_regions.iterrows():
-        mask = region_map["nom"] == row["name_reg"]
-        df["geometry"].append(region_map.loc[mask]["geometry"].values[0])
-    df = gpd.GeoDataFrame(df, crs=region_map.crs)
     df["ratio"] = df["Choice A"] / (df["Choice B"] + df["Choice A"])
     df.plot(column="ratio", legend=True)
-    print(df[["name_reg", "ratio"]])
 
     return df
 
