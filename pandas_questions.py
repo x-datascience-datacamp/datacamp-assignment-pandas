@@ -82,7 +82,7 @@ def plot_referendum_map(referendum_result_by_regions):
     """* Load the geographic data with geopandas from `regions.geojson`.
     * Merge these info into `referendum_result_by_regions`.
     * Use the method `GeoDataFrame.plot` to display the result map. The results
-      should display the rate of 'Choice A' over all expressed ballots.
+      should display the rate of 'Choice A' ove all expressed ballots.
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
     filenamegpd = "/Users/Aris/datacamp-assignment-pandas/data/regions.geojson"
