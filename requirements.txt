@@ -2,4 +2,4 @@ numpy
 pandas
 pytest
 geopandas
-descarte
+descartes
