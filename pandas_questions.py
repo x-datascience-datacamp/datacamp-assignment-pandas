@@ -28,8 +28,11 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
-    merged_df = regions.merge(departments, left_on='code', right_on='region_code', suffixes=('_reg', '_dep')) 
-    final_df = merged_df.loc[ :, ['code_reg', 'name_reg', 'code_dep', 'name_dep']]
+    merged_df = regions.merge(departments, left_on='code',
+                              right_on='region_code',
+                              suffixes=('_reg', '_dep'))
+    final_df = merged_df.loc[:, ['code_reg', 'name_reg', 'code_dep',
+                                 'name_dep']]
     final_df.head(10)
     return final_df
 
@@ -40,11 +43,13 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     You can drop the lines relative to DOM-TOM-COM departments, and the
     french living abroad.
     """
-    #Line to be used to drop DOM-TOM-COM departments and french living abroad
-    #drop_ref = referendum.drop(referendum[referendum['Department code'].str.contains('Z')].index)
-    
-    referendum['Department code'] = referendum['Department code'].apply(lambda x : '0' + x if len(x)==1 else x)
-    merged_df = referendum.merge(regions_and_departments, left_on='Department code', right_on='code_dep')
+    # drop_ref = referendum.drop(referendum[referendum['Department code']
+    #                           .str.contains('Z')].index)
+    referendum['Department code'] = referendum['Department code']\
+        .apply(lambda x: '0'+x if len(x) == 1 else x)
+    merged_df = referendum.merge(regions_and_departments,
+                                 left_on='Department code',
+                                 right_on='code_dep')
     return merged_df
 
 
@@ -54,7 +59,8 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     The return DataFrame should be indexed by `code_reg` and have columns:
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
-    count_df = referendum_and_areas.groupby(['code_reg', 'name_reg']).sum().drop(['Town code'], axis = 1).reset_index(level=['name_reg'])
+    count_df = referendum_and_areas.groupby(['code_reg', 'name_reg']).sum()\
+        .drop(['Town code'], axis=1).reset_index(level=['name_reg'])
     return count_df
 
 
@@ -68,10 +74,14 @@ def plot_referendum_map(referendum_result_by_regions):
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
     data_geo = gpd.read_file('./data/regions.geojson')
-    merged_geo_df = gpd.GeoDataFrame(referendum_result_by_regions.merge(data_geo, left_on='code_reg', right_on='code'))
-    merged_geo_df['ratio'] = merged_geo_df['Choice A'] / (merged_geo_df['Registered']-(merged_geo_df['Abstentions']+merged_geo_df['Null']))
-    merged_geo_df.plot(column='ratio', legend=True)
-    return gpd.GeoDataFrame(merged_geo_df)
+    merged = gpd.GeoDataFrame(referendum_result_by_regions
+                              .merge(data_geo, left_on='code_reg',
+                                     right_on='code'))
+    merged['ratio'] = merged['Choice A']/(merged['Registered']
+                                          - (merged['Abstentions']
+                                             + merged['Null']))
+    merged.plot(column='ratio', legend=True)
+    return gpd.GeoDataFrame(merged)
 
 
 if __name__ == "__main__":
