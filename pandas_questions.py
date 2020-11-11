@@ -40,7 +40,6 @@ def merge_regions_and_departments(regions, departments):
     return df
 
 
-
 def merge_referendum_and_areas(referendum, regions_and_departments):
     """Merge referendum and regions_and_departments in one DataFrame.
     You can drop the lines relative to DOM-TOM-COM departments, and the
@@ -48,9 +47,8 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     """
     rd = regions_and_departments
     referendum = referendum
-    rd = rd[rd['code_dep'].str.len() <= 2]
-
-    df = pd.merge(referendum, regions_and_departments,
+    rd.code_dep = [x.lstrip("0") for x in rd.code_dep]
+    df = pd.merge(referendum, rd,
                   left_on=['Department code'],
                   right_on=['code_dep'],
                   how='left').dropna()
@@ -68,8 +66,9 @@ def compute_referendum_result_by_regions(referendum_and_areas):
         'Choice B', 'code_reg'
     ]
     df = referendum_and_areas[col_names].groupby(
-        ['code_reg', 'name_reg'], as_index=False).sum().set_index('code_reg')
-    return df
+        ['code_reg', 'name_reg'], as_index=False)
+    results = df.sum().set_index('code_reg')
+    return results
 
 
 def plot_referendum_map(referendum_result_by_regions):
