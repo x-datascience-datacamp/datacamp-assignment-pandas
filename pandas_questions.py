@@ -41,8 +41,8 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     You can drop the lines relative to DOM-TOM-COM departments, and the
     french living abroad.
     """
-    ref_local = referendum.loc[referendum["Department code"].str.contains("Z")
-                               is False]
+    ref_local = referendum.loc[~referendum[
+        "Department code"].str.contains("Z")]
 
     def code_normalization(string):
         if len(string) == 1:
@@ -63,7 +63,6 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     The return DataFrame should be indexed by `code_reg` and have columns:
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
-
     results = referendum_and_areas.groupby(['code_reg',
                                             'name_reg']).sum().drop(
         "Town code", axis=1).reset_index().set_index("code_reg")
