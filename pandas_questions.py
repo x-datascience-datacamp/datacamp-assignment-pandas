@@ -114,6 +114,8 @@ def plot_referendum_map(referendum_result_by_regions):
         res['Choice A'] + res['Choice B']
         )
 
+    gpd.GeoDataFrame(res).plot()
+
     return gpd.GeoDataFrame(res)
 
 
