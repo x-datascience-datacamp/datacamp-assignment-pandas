@@ -31,6 +31,7 @@ def merge_regions_and_departments(regions, departments):
     d = regions.merge(departments,how='right', right_on='region_code', left_on='code')
     d = d.drop(columns = ['id_x','region_code','slug_x','id_y','slug_y'])
     d = d.rename(columns={'code_x': 'code_reg', 'name_x': 'name_reg', 'code_y':'code_dep','name_y':'name_dep'})
+    d['code_dep'] = d['code_dep'].apply( lambda x: x[1] if x[0] == '0' else x)
     
 
     return d
@@ -62,7 +63,6 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     h = referendum_and_areas
     h = h.drop(columns = ['name_dep','Department code','code_dep','Department name','Town code','Town name'])
     h = h.dropna()
-    h.set_index('code_reg')
     h = h.groupby(['code_reg','name_reg']).sum().reset_index('name_reg')
 
     return h
@@ -80,8 +80,7 @@ def plot_referendum_map(referendum_result_by_regions):
     h = referendum_result_by_regions
     df = gpd.read_file('data/regions.geojson')
     df = df.merge(h,how = 'right', left_on = 'nom', right_on = 'name_reg')
-    df = df.drop(columns = ['nom']).set_index('code')
-    df['ratio'] = df['Choice A']/(df['Choice A'].sum()+df['Choice B'].sum())
+    df['ratio'] = df['Choice A']/(df['Choice A']+df['Choice B'])
     df.plot(column='ratio',legend =True)
     
     
