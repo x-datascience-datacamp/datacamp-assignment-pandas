@@ -27,10 +27,10 @@ def merge_regions_and_departments(regions, departments):
     The columns in the final DataFrame should be:
     ['code_reg', 'name_reg', 'code_dep', 'name_dep']
     """
-    regions = regions[['code','name']]
-    departments = departments[['region_code','code','name']]
-    regions.columns = ['code_reg','name_reg']
-    departments.columns = ['code_reg','code_dep','name_dep']
+    regions = regions[['code', 'name']]
+    departments = departments[['region_code', 'code', 'name']]
+    regions.columns = ['code_reg', 'name_reg']
+    departments.columns = ['code_reg', 'code_dep', 'name_dep']
     return pd.merge(regions, departments, on='code_reg', how='right')
 
 
@@ -43,8 +43,10 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     code_dep = regions_and_departments['code_dep'].copy()
     regions_and_departments['Department code'] = code_dep
     tmp = code_dep[code_dep.str.startswith('0')].apply(lambda x: str(int(x)))
-    regions_and_departments['Department code'][code_dep.str.startswith('0')] = tmp
-    df = pd.merge(referendum, regions_and_departments, on=['Department code'], how='left')
+    regions_and_departments['Department code'][code_dep.str.startswith(
+        '0')] = tmp
+    df = pd.merge(referendum, regions_and_departments, 
+     on=['Department code'], how='left')
     return df.dropna(axis=0)
 
 
@@ -55,8 +57,8 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
     res = referendum_and_areas.copy()
-    res = res[['code_reg','name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']]
-    res = res.groupby(['code_reg','name_reg']).sum().reset_index()
+    res = res[['code_reg', 'name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']]
+    res = res.groupby(['code_reg', 'name_reg']).sum().reset_index()
     return res.set_index('code_reg')
 
 
@@ -70,9 +72,9 @@ def plot_referendum_map(referendum_result_by_regions):
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
     geo_data = gpd.read_file('data/regions.geojson')
-    res = referendum_result_by_regions.rename(columns={'name_reg':'nom'})
-    df = pd.merge(res,geo_data.set_index('code'), on='nom',how='left')
-    gdf =  gpd.GeoDataFrame(df.rename(columns={'nom':'name_reg'}))
+    res = referendum_result_by_regions.rename(columns={'name_reg': 'nom'})
+    df = pd.merge(res,geo_data.set_index('code'), on='nom', how='left')
+    gdf =  gpd.GeoDataFrame(df.rename(columns={'nom': 'name_reg'}))
     gdf['ratio'] = gdf['Choice A'] / (gdf['Choice A'] + gdf['Choice B'])
     gdf.plot(column='ratio')
     return gdf
