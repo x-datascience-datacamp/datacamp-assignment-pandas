@@ -8,7 +8,6 @@ To do that, you will load the data as pandas.DataFrame, merge the info and
 aggregate them by regions and finally plot them on a map using `geopandas`.
 """
 import pandas as pd
-import numpy as np
 import geopandas as gpd
 import matplotlib.pyplot as plt
 
@@ -73,12 +72,11 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     code_series = referendum["Department code"].str.pad(2, fillchar="0")
     referendum.loc[:, "Department code"] = code_series
     df = pd.merge(referendum, regions_and_departments,
-                                    how='left',
-                                    left_on='Department code',
-                                    right_on='code_dep')
-                                
-    return df
+                  how='left',
+                  left_on='Department code',
+                  right_on='code_dep')
 
+    return df
 
 
 def compute_referendum_result_by_regions(referendum_and_areas):
@@ -125,10 +123,9 @@ def plot_referendum_map(referendum_result_by_regions):
     """
     geopd = gpd.read_file("./data/regions.geojson")
     df = geopd.merge(referendum_result_by_regions,
-                          left_on="nom",
-                          right_on="name_reg",
-                          how="right"
-                          )
+                     left_on="nom",
+                     right_on="name_reg",
+                     how="right")
 
     df["ratio"] = df["Choice A"] / (df["Choice B"] + df["Choice A"])
     df.plot(column="ratio", legend=True)
