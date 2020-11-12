@@ -47,11 +47,9 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     """
     ref = referendum.copy()
     ref["code_dep"] = referendum["Department code"]
-    for i in range(len(ref["code_dep"])):
-        if ref["code_dep"][i] in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]:
-            ref.loc["code_dep", i] = "0" + ref["code_dep"][i]
-    ref = ref[not ref["code_dep"].str.startswith("Z")]
+    ref = ref[ref["code_dep"] != "ZZ"]
     rd = regions_and_departments[regions_and_departments['code_reg'] != "COM"]
+    rd.loc[:, 'code_dep'] = rd['code_dep'].apply(lambda x: x.lstrip('0'))
     result = pd.merge(rd, ref, on='code_dep', how='left')
     return result.dropna()
 
@@ -82,13 +80,14 @@ def plot_referendum_map(referendum_result_by_regions):
       should display the rate of 'Choice A' over all expressed ballots.
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
-    data = gpd.read_file('data/regions.geojson')
-    rr = referendum_results.rename(columns={"name_reg": 'nom'})
-    temp = data.merge(rr, on="nom")
-    gdf = gpd.GeoDataFrame(temp)
-    gdf["ratio"] = gdf["Choice A"] / (gdf["Choice A"] + gdf["Choice B"])
-    gpd.GeoDataFrame.plot(gdf, column="ratio")
-
+    data = gpd.read_file('data//regions.geojson')
+    data = data.rename(columns={'code': 'code_reg', 'nom': 'name_reg'})
+    df = pd.merge(data,
+                  referendum_result_by_regions.reset_index(),
+                  on=['code_reg', 'name_reg']).set_index('code_reg')
+    df['ratio'] = df['Choice A']/(df['Choice A']+df['Choice B'])
+    gdf = gpd.GeoDataFrame(df)
+    gpd.GeoDataFrame.plot(gdf, column='ratio')
     return gdf
 
 
