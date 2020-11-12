@@ -50,10 +50,10 @@ def merge_regions_and_departments(regions, departments):
 
 def merge_referendum_and_areas(referendum, regions_and_departments):
     """Merge referendum and regions_and_departments in one DataFrame.
-    You can drop the lines relative to DOM-TOM-COM departments, and the
-    french living abroad.
-    """
 
+    You can drop the lines relative to DOM-TOM-COM departments, and the
+    french living abroad
+    """
     referendum = referendum.dropna()
     regions_and_departments.dropna()
     dom_tom_com = referendum[referendum[
@@ -117,7 +117,6 @@ def plot_referendum_map(referendum_result_by_regions):
       should display the rate of 'Choice A' over all expressed ballots.
     * Return a gpd.GeoDataFrame with a column 'ratio' containing the results.
     """
-
     geographic = pd.DataFrame(gpd.read_file('data/regions.geojson'))
 
     ratio = referendum_result_by_regions['Choice A']/(
