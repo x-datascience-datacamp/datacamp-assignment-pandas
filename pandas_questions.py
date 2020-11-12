@@ -45,8 +45,8 @@ def merge_referendum_and_areas(referendum, regions_and_departments):
     tmp = code_dep[code_dep.str.startswith('0')].apply(lambda x: str(int(x)))
     regions_and_departments['Department code'][code_dep.str.startswith(
         '0')] = tmp
-    df = pd.merge(referendum, regions_and_departments,
-     on=['Department code'], how='left')
+    df = pd.merge(referendum, regions_and_departments, on=[
+        'Department code'], how='left')
     return df.dropna(axis=0)
 
 
@@ -57,8 +57,8 @@ def compute_referendum_result_by_regions(referendum_and_areas):
     ['name_reg', 'Registered', 'Abstentions', 'Null', 'Choice A', 'Choice B']
     """
     res = referendum_and_areas.copy()
-    res = res[['code_reg', 'name_reg', 'Registered', 'Abstentions', 'Null',
-     'Choice A', 'Choice B']]
+    res = res[['code_reg', 'name_reg', 'Registered', 'Abstentions',
+    'Null', 'Choice A', 'Choice B']]
     res = res.groupby(['code_reg', 'name_reg']).sum().reset_index()
     return res.set_index('code_reg')
 
